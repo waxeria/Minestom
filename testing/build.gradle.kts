@@ -1,18 +1,5 @@
 plugins {
     id("java-library")
-    `maven-publish`
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "net.minestom.testing"
-            artifactId = "testing"
-            version = "1.0"
-
-            from(components["java"])
-        }
-    }
 }
 
 group = "net.minestom.testing"
