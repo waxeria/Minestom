@@ -112,6 +112,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     protected boolean lastVelocityWasZero = true;
     protected boolean hasPhysics = true;
     protected boolean hasCollisions = true;
+    protected Vec lastCollisionVelocity = Vec.ZERO;
 
     /**
      * The amount of drag applied on the Y axle.
@@ -587,14 +588,13 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         final Pos newPosition;
         final Vec newVelocity;
         if (this.hasPhysics) {
-            final Vec sumDeltaPos = deltaPos.add(EntityCollisionUtils.calculateEntityCollisions(this, true));
-            final var physicsResult = CollisionUtils.handlePhysics(this, sumDeltaPos, lastPhysicsResult);
-            this.lastPhysicsResult = physicsResult;
+            this.lastCollisionVelocity = EntityCollisionUtils.calculateEntityCollisions(this, true); // TODO: performance improvement
+            this.lastPhysicsResult = CollisionUtils.handlePhysics(this, deltaPos.add(this.lastCollisionVelocity), this.lastPhysicsResult);
             if (!PlayerUtils.isSocketClient(this))
-                this.onGround = physicsResult.isOnGround();
+                this.onGround = this.lastPhysicsResult.isOnGround();
 
-            newPosition = physicsResult.newPosition();
-            newVelocity = physicsResult.newVelocity();
+            newPosition = this.lastPhysicsResult.newPosition();
+            newVelocity = this.lastPhysicsResult.newVelocity();
         } else {
             newVelocity = deltaPos;
             newPosition = position.add(currentVelocity.div(20));
@@ -1207,6 +1207,14 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
      */
     public void setGlowing(boolean glowing) {
         this.entityMeta.setHasGlowingEffect(glowing);
+    }
+
+    /**
+     * @return {@link Vec}
+     */
+    @NotNull
+    public Vec getLastCollisionVelocity() {
+        return this.lastCollisionVelocity;
     }
 
     /**

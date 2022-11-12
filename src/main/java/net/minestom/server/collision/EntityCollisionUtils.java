@@ -1,5 +1,6 @@
 package net.minestom.server.collision;
 
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
@@ -16,7 +17,7 @@ import java.util.function.Predicate;
  * @author <a href="https://github.com/iam4722202468">iam4722202468</a>, Obyvante
  * <a href="https://github.com/Minestom/Minestom/pull/763">from</a>
  */
-@SuppressWarnings("unused")
+// TODO: performance improvements
 public final class EntityCollisionUtils {
     public static final Vec POWER = new Vec(0.07, 0.07, 0.07);
     public static final Set<EntityType> NO_COLLISION = Set.of(
@@ -41,16 +42,15 @@ public final class EntityCollisionUtils {
      */
     @NotNull
     public static Vec calculateEntityCollisions(@NotNull final Entity entity, final boolean ignoreNoCollisionEntities) {
-        final var bb = entity.getBoundingBox();
-        final double bbFurthestCorner = Math.sqrt(bb.depth() + bb.height() + bb.width());
-
         // If entity has no instance, no need to check for collisions.
         if (entity.getInstance() == null) return Vec.ZERO;
 
-        Predicate<Entity> collisionPredicate = e -> !ignoreNoCollisionEntities || !EntityCollisionUtils.NO_COLLISION.contains(e.getEntityType());
-
         // These entities don't have collisions
+        Predicate<Entity> collisionPredicate = e -> !ignoreNoCollisionEntities || !EntityCollisionUtils.NO_COLLISION.contains(e.getEntityType());
         if (!collisionPredicate.test(entity)) return Vec.ZERO;
+
+        final var bb = entity.getBoundingBox();
+        final double bbFurthestCorner = Math.sqrt(bb.depth() + bb.height() + bb.width());
 
         var vector_acc = Vec.ZERO;
 
@@ -69,24 +69,14 @@ public final class EntityCollisionUtils {
                 double currentDistanceX, currentDistanceZ;
 
                 // X
-                {
-                    // Nearby left of entity
-                    currentDistanceX = entity.getPosition().x() - nearby_entity.getPosition().x();
-
-                    // Min distance without overlap
-                    double minDistance = collisionCheckBB.width() / 2 + bb.width() / 2;
-                }
+                // Nearby left of entity
+                currentDistanceX = entity.getPosition().x() - nearby_entity.getPosition().x();
 
                 // If y is implemented, min distance calculation isn't h1 / 2 + h2 / 2, because entity position is from bottom of bounding box, not centre
 
                 // Z
-                {
-                    // Nearby left of entity
-                    currentDistanceZ = entity.getPosition().z() - nearby_entity.getPosition().z();
-
-                    // Min distance without overlap
-                    double minDistance = collisionCheckBB.depth() / 2 + bb.depth() / 2;
-                }
+                // Nearby left of entity
+                currentDistanceZ = entity.getPosition().z() - nearby_entity.getPosition().z();
 
                 if (Math.abs(currentDistanceX) > Math.abs(currentDistanceZ)) {
                     // X-axis shorter
@@ -98,5 +88,34 @@ public final class EntityCollisionUtils {
             }
         }
         return vector_acc.isZero() ? Vec.ZERO : vector_acc.normalize().mul(EntityCollisionUtils.POWER);
+    }
+
+    /**
+     * Calculates entity collisions.
+     *
+     * @param entity                    {@link Entity} to calculate collisions for.
+     * @param ignoreNoCollisionEntities Whether to ignore entities with no collision.
+     * @return {@link Vec} representing the entity's motion.
+     * @throws IllegalArgumentException If {@param entity} is {@code null}.
+     */
+    public static boolean hasEntityCollision(@NotNull final Entity entity, @NotNull final Pos position, final boolean ignoreNoCollisionEntities) {
+        final var bb = entity.getBoundingBox();
+        final double bbFurthestCorner = Math.sqrt(bb.depth() + bb.height() + bb.width());
+
+        // If entity has no instance, no need to check for collisions.
+        if (entity.getInstance() == null) return false;
+
+        Predicate<Entity> collisionPredicate = e -> !ignoreNoCollisionEntities || !EntityCollisionUtils.NO_COLLISION.contains(e.getEntityType());
+
+        // These entities don't have collisions
+        if (!collisionPredicate.test(entity)) return false;
+
+        // Gets nearby entities.
+        final var nearby_entities = new HashSet<Entity>(0);
+        entity.getInstance().getEntityTracker().nearbyEntities(position, bbFurthestCorner, EntityTracker.Target.ENTITIES, target -> {
+            if (!collisionPredicate.test(target) || target == entity) return;
+            nearby_entities.add(target);
+        });
+        return !nearby_entities.isEmpty();
     }
 }
