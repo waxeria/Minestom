@@ -22,6 +22,8 @@ public final class EntityCollisionUtils {
     public static final Vec POWER = new Vec(0.07, 0.07, 0.07);
     public static final Set<EntityType> NO_COLLISION = Set.of(
             EntityType.ITEM,
+            EntityType.ITEM_FRAME,
+            EntityType.LLAMA_SPIT,
             EntityType.EXPERIENCE_ORB,
             EntityType.PAINTING,
             EntityType.ARMOR_STAND,
@@ -30,7 +32,17 @@ public final class EntityCollisionUtils {
             EntityType.LIGHTNING_BOLT,
             EntityType.ARROW,
             EntityType.SPECTRAL_ARROW,
-            EntityType.SHULKER_BULLET);
+            EntityType.SHULKER_BULLET,
+            EntityType.SNOWBALL,
+            EntityType.FIREBALL,
+            EntityType.DRAGON_FIREBALL,
+            EntityType.SMALL_FIREBALL,
+            EntityType.EGG,
+            EntityType.TNT,
+            EntityType.ENDER_PEARL,
+            EntityType.EYE_OF_ENDER,
+            EntityType.FALLING_BLOCK,
+            EntityType.FISHING_BOBBER);
 
     /**
      * Calculates entity collisions.
@@ -49,21 +61,21 @@ public final class EntityCollisionUtils {
         Predicate<Entity> collisionPredicate = e -> !ignoreNoCollisionEntities || !EntityCollisionUtils.NO_COLLISION.contains(e.getEntityType());
         if (!collisionPredicate.test(entity)) return Vec.ZERO;
 
-        final var bb = entity.getBoundingBox();
-        final double bbFurthestCorner = Math.sqrt(bb.depth() + bb.height() + bb.width());
-
+        // Declares required variables.
+        final var entity_bounding_box = entity.getBoundingBox();
+        final double entity_furthest_corner = Math.sqrt(entity_bounding_box.depth() + entity_bounding_box.height() + entity_bounding_box.width());
         var vector_acc = Vec.ZERO;
 
         // Gets nearby entities.
         final var nearby_entities = new HashSet<Entity>(0);
-        entity.getInstance().getEntityTracker().nearbyEntities(entity.getPosition(), bbFurthestCorner, EntityTracker.Target.ENTITIES, target -> {
+        entity.getInstance().getEntityTracker().nearbyEntities(entity.getPosition(), entity_furthest_corner, EntityTracker.Target.ENTITIES, target -> {
             if (!collisionPredicate.test(target) || target == entity) return;
             nearby_entities.add(target);
         });
 
         for (final var nearby_entity : nearby_entities) {
             BoundingBox collisionCheckBB = nearby_entity.getBoundingBox();
-            if (collisionCheckBB.intersectBox(nearby_entity.getPosition().sub(entity.getPosition()), bb)) {
+            if (collisionCheckBB.intersectBox(nearby_entity.getPosition().sub(entity.getPosition()), entity_bounding_box)) {
                 // Find the shortest resolution to collision by calculating the two faces with the shortest distance
                 // Only solve collision for X and Z. Y doesn't matter because gravity
                 double currentDistanceX, currentDistanceZ;
@@ -99,9 +111,6 @@ public final class EntityCollisionUtils {
      * @throws IllegalArgumentException If {@param entity} is {@code null}.
      */
     public static boolean hasEntityCollision(@NotNull final Entity entity, @NotNull final Pos position, final boolean ignoreNoCollisionEntities) {
-        final var bb = entity.getBoundingBox();
-        final double bbFurthestCorner = Math.sqrt(bb.depth() + bb.height() + bb.width());
-
         // If entity has no instance, no need to check for collisions.
         if (entity.getInstance() == null) return false;
 
@@ -110,9 +119,13 @@ public final class EntityCollisionUtils {
         // These entities don't have collisions
         if (!collisionPredicate.test(entity)) return false;
 
+        // Declares required variables.
+        final var entity_bounding_box = entity.getBoundingBox();
+        final double entity_furthest_corner = Math.sqrt(entity_bounding_box.depth() + entity_bounding_box.height() + entity_bounding_box.width());
+
         // Gets nearby entities.
         final var nearby_entities = new HashSet<Entity>(0);
-        entity.getInstance().getEntityTracker().nearbyEntities(position, bbFurthestCorner, EntityTracker.Target.ENTITIES, target -> {
+        entity.getInstance().getEntityTracker().nearbyEntities(position, entity_furthest_corner, EntityTracker.Target.ENTITIES, target -> {
             if (!collisionPredicate.test(target) || target == entity) return;
             nearby_entities.add(target);
         });
