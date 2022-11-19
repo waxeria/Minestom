@@ -113,6 +113,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     protected boolean hasPhysics = true;
     protected boolean hasCollisions = true;
     protected Vec lastCollisionVelocity = Vec.ZERO;
+    public double swimGravity = 0.04D;
 
     /**
      * The amount of drag applied on the Y axle.
@@ -583,13 +584,24 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         final Pos positionBeforeMove = getPosition();
         final Vec currentVelocity = getVelocity();
         final boolean wasOnGround = this.onGround;
-        final Vec deltaPos = currentVelocity.div(tps);
+        var deltaPos = currentVelocity.div(tps);
 
         final Pos newPosition;
         final Vec newVelocity;
         if (this.hasPhysics) {
+            // Entity collision
             this.lastCollisionVelocity = EntityCollisionUtils.calculateEntityCollisions(this, true); // TODO: performance improvement
-            this.lastPhysicsResult = CollisionUtils.handlePhysics(this, deltaPos.add(this.lastCollisionVelocity), this.lastPhysicsResult);
+            deltaPos = deltaPos.add(this.lastCollisionVelocity);
+
+            // Water collision.
+            if (this.swimGravity > 0.0F
+                    && this.entityType != EntityType.PLAYER
+                    && this.instance != null
+                    && this.instance.getBlock(this.position, Block.Getter.Condition.TYPE).isLiquid()) {
+                deltaPos = deltaPos.add(new Pos(0.0D, this.swimGravity, 0.0D));
+            }
+
+            this.lastPhysicsResult = CollisionUtils.handlePhysics(this, deltaPos, this.lastPhysicsResult);
             if (!PlayerUtils.isSocketClient(this))
                 this.onGround = this.lastPhysicsResult.isOnGround();
 
