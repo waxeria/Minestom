@@ -550,6 +550,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         {
             // Cache the number of "gravity tick"
             velocityTick();
+            movementTick();
 
             // handle block contacts
             touchTick();
@@ -665,6 +666,14 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
                 this.lastVelocityWasZero = !hasVelocity;
             }
         }
+    }
+
+    private Pos lastLocation;
+
+    private void movementTick() {
+        if (this.lastLocation != null && this.lastLocation.samePoint(this.position)) return;
+        this.lastLocation = this.position;
+        EventDispatcher.call(new EntityMoveEvent(this, this.position));
     }
 
     protected void updateVelocity(boolean wasOnGround, boolean flying, Pos positionBeforeMove, Vec newVelocity) {
