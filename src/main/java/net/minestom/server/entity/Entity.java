@@ -90,7 +90,8 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     private static final int VELOCITY_UPDATE_INTERVAL = 1;
 
     private static final Int2ObjectSyncMap<Entity> ENTITY_BY_ID = Int2ObjectSyncMap.hashmap();
-    private static final Map<UUID, Entity> ENTITY_BY_UUID = new ConcurrentHashMap<>();
+    public static final Map<UUID, Entity> ENTITY_BY_UUID = new ConcurrentHashMap<>();
+    public static final List<Entity> ENTITY_LIST = new ArrayList<>();
     private static final AtomicInteger LAST_ENTITY_ID = new AtomicInteger();
 
     private final CachedPacket destroyPacketCache = new CachedPacket(() -> new DestroyEntitiesPacket(getEntityId()));
@@ -197,6 +198,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
 
         Entity.ENTITY_BY_ID.put(id, this);
         Entity.ENTITY_BY_UUID.put(uuid, this);
+        ENTITY_LIST.add(this);
 
         this.gravityAcceleration = entityType.registry().acceleration();
         this.gravityDragPerTick = entityType.registry().drag();
@@ -591,7 +593,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         final Vec newVelocity;
         if (this.hasPhysics) {
             // Entity collision
-            this.lastCollisionVelocity = EntityCollisionUtils.calculateEntityCollisions(this, true); // TODO: performance improvement
+            this.lastCollisionVelocity = EntityCollisionUtils.calculateEntityCollisions(this);
             deltaPos = deltaPos.add(this.lastCollisionVelocity);
 
             // Water collision.
@@ -1532,6 +1534,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         this.removed = true;
         Entity.ENTITY_BY_ID.remove(id);
         Entity.ENTITY_BY_UUID.remove(uuid);
+        ENTITY_LIST.remove(this);
         Instance currentInstance = this.instance;
         if (currentInstance != null) removeFromInstance(currentInstance);
     }
