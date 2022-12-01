@@ -62,6 +62,11 @@ public class Hologram implements Viewable {
      */
     public Hologram(Instance instance, Pos spawnPosition, Component text, boolean autoViewable, boolean marker) {
         this.entity = new Entity(EntityType.ARMOR_STAND);
+        this.entity.setHasPhysics(false);
+        this.entity.setNoGravity(true);
+
+        // Performance.
+        this.entity.disableAllTicks();
 
         ArmorStandMeta armorStandMeta = (ArmorStandMeta) entity.getEntityMeta();
 
@@ -74,7 +79,6 @@ public class Hologram implements Viewable {
             this.yOffset = OFFSET_Y;
             armorStandMeta.setSmall(true);
         }
-        armorStandMeta.setHasNoGravity(true);
         armorStandMeta.setCustomName(Component.empty());
         armorStandMeta.setCustomNameVisible(true);
         armorStandMeta.setInvisible(true);

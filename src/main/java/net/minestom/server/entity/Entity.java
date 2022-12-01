@@ -180,6 +180,13 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
 
     // Tick related
     private long ticks;
+    protected boolean tickVelocity = true;
+    protected boolean tickEffects = false;
+    protected boolean tickPositionSync = true;
+    protected boolean tickEvent = true;
+    protected boolean tickUpdate = true;
+    protected boolean tickMoveEvent = true;
+    protected boolean tickNoViewers = true;
 
     private final Acquirable<Entity> acquirable = Acquirable.of(this);
 
@@ -531,6 +538,82 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         return permissions;
     }
 
+    public boolean isTickVelocity() {
+        return tickVelocity;
+    }
+
+    public void setTickVelocity(boolean tickVelocity) {
+        this.tickVelocity = tickVelocity;
+    }
+
+    public boolean isTickEffects() {
+        return tickEffects;
+    }
+
+    public void setTickEffects(boolean tickEffects) {
+        this.tickEffects = tickEffects;
+    }
+
+    public boolean isTickPositionSync() {
+        return tickPositionSync;
+    }
+
+    public void setTickPositionSync(boolean tickPositionSync) {
+        this.tickPositionSync = tickPositionSync;
+    }
+
+    public boolean isTickEvent() {
+        return tickEvent;
+    }
+
+    public void setTickEvent(boolean tickEvent) {
+        this.tickEvent = tickEvent;
+    }
+
+    public boolean isTickUpdate() {
+        return tickUpdate;
+    }
+
+    public void setTickUpdate(boolean tickUpdate) {
+        this.tickUpdate = tickUpdate;
+    }
+
+    public boolean isTickMoveEvent() {
+        return tickMoveEvent;
+    }
+
+    public void setTickMoveEvent(boolean tickMoveEvent) {
+        this.tickMoveEvent = tickMoveEvent;
+    }
+
+    public boolean isTickNoViewers() {
+        return tickNoViewers;
+    }
+
+    public void setTickNoViewers(boolean tickNoViewers) {
+        this.tickNoViewers = tickNoViewers;
+    }
+
+    public void disableAllTicks() {
+        this.tickVelocity = false;
+        this.tickEffects = false;
+        this.tickPositionSync = false;
+        this.tickEvent = false;
+        this.tickUpdate = false;
+        this.tickMoveEvent = false;
+        this.tickNoViewers = false;
+    }
+
+    public void enableAllTicks() {
+        this.tickVelocity = true;
+        this.tickEffects = true;
+        this.tickPositionSync = true;
+        this.tickEvent = true;
+        this.tickUpdate = true;
+        this.tickMoveEvent = true;
+        this.tickNoViewers = true;
+    }
+
     /**
      * Updates the entity, called every tick.
      * <p>
@@ -543,6 +626,8 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         if (instance == null || isRemoved() || !ChunkUtils.isLoaded(currentChunk))
             return;
 
+        if (!this.tickNoViewers && getViewers().isEmpty()) return;
+
         // scheduled tasks
         this.scheduler.processTick();
         if (isRemoved()) return;
@@ -550,30 +635,33 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         // Entity tick
         {
             // Cache the number of "gravity tick"
-            velocityTick();
-            movementTick();
-
-            // handle block contacts
-            touchTick();
-
-            handleVoid();
+            if (this.tickVelocity) {
+                velocityTick();
+                if (this.tickMoveEvent) movementTick();
+                handleVoid();
+            }
 
             // Call the abstract update method
-            update(time);
+            if (this.tickUpdate) update(time);
 
-            ticks++;
-            EventDispatcher.call(new EntityTickEvent(this));
+            this.ticks++;
+            if (this.tickEvent) EventDispatcher.call(new EntityTickEvent(this));
 
-            // remove expired effects
-            effectTick(time);
+            if (this.tickEffects) {
+                // remove expired effects
+                effectTick(time);
+            }
         }
-        // Scheduled synchronization
-        if (!Cooldown.hasCooldown(time, lastAbsoluteSynchronizationTime, getSynchronizationCooldown())) {
-            synchronizePosition(false);
+        if (this.tickPositionSync) {
+            // Scheduled synchronization
+            if (!Cooldown.hasCooldown(time, lastAbsoluteSynchronizationTime, getSynchronizationCooldown())) {
+                synchronizePosition(false);
+            }
         }
     }
 
     private void velocityTick() {
+        //if (this.viewEngine.hasPredictableViewers()) return;
         this.gravityTickCount = onGround ? 0 : gravityTickCount + 1;
         if (vehicle != null) return;
 
@@ -600,7 +688,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
                     && this.entityType != EntityType.PLAYER
                     && this.instance != null
                     && this.instance.getBlock(this.position, Block.Getter.Condition.TYPE).isLiquid()) {
-                deltaPos = deltaPos.add(new Pos(0.0D, this.swimGravity, 0.0D));
+                deltaPos = deltaPos.withY(y -> y + this.swimGravity);
             }
 
             this.lastPhysicsResult = CollisionUtils.handlePhysics(this, deltaPos, this.lastPhysicsResult);
@@ -859,6 +947,18 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     }
 
     /**
+     * Gets last known physic result from velocity tick.
+     *
+     * @return {@link PhysicsResult}
+     * @see #velocityTick()
+     * @see PhysicsResult
+     */
+    @Nullable
+    public PhysicsResult getLastPhysicsResult() {
+        return this.lastPhysicsResult;
+    }
+
+    /**
      * Convenient method to get the entity current chunk.
      *
      * @return the entity chunk, can be null even if unlikely
@@ -949,6 +1049,22 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     }
 
     /**
+     * @return {@code true} if the entity is currently in an instance, {@code false} otherwise
+     */
+    public boolean isHasPhysics() {
+        return hasPhysics;
+    }
+
+    /**
+     * Sets whether the entity has physics or not.
+     *
+     * @param hasPhysics {@code true} if the entity has physics, {@code false} otherwise
+     */
+    public void setHasPhysics(final boolean hasPhysics) {
+        this.hasPhysics = hasPhysics;
+    }
+
+    /**
      * Gets the entity current velocity.
      *
      * @return the entity current velocity
@@ -964,11 +1080,11 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
      *
      * @param velocity the new entity velocity
      */
-    public void setVelocity(@NotNull Vec velocity) {
+    public void setVelocity(@NotNull final Vec velocity) {
         EntityVelocityEvent entityVelocityEvent = new EntityVelocityEvent(this, velocity);
         EventDispatcher.callCancellable(entityVelocityEvent, () -> {
             this.velocity = entityVelocityEvent.getVelocity();
-            sendPacketToViewersAndSelf(getVelocityPacket());
+            this.sendPacketToViewersAndSelf(this.getVelocityPacket());
         });
     }
 
@@ -1579,7 +1695,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     }
 
     protected @NotNull EntityVelocityPacket getVelocityPacket() {
-        return new EntityVelocityPacket(getEntityId(), getVelocityForPacket());
+        return new EntityVelocityPacket(this.getEntityId(), this.getVelocityForPacket());
     }
 
     /**
@@ -1676,15 +1792,24 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
      */
     public void takeKnockback(float strength, final double x, final double z) {
         if (strength > 0) {
+            this.takeKnockback(strength, x, 0.0D, z);
+        }
+    }
+
+    /**
+     * Applies knockback to the entity
+     *
+     * @param strength the strength of the knockback, 0.4 is the vanilla value for a bare hand hit
+     * @param x        knockback on x axle, for default knockback use the following formula <pre>sin(attacker.yaw * (pi/180))</pre>
+     * @param z        knockback on z axle, for default knockback use the following formula <pre>-cos(attacker.yaw * (pi/180))</pre>
+     */
+    public void takeKnockback(float strength, final double x, final double y, final double z) {
+        if (strength > 0) {
             //TODO check possible side effects of unnatural TPS (other than 20TPS)
             strength *= MinecraftServer.TICK_PER_SECOND;
-            final Vec velocityModifier = new Vec(x, z).normalize().mul(strength);
-            final double verticalLimit = .4d * MinecraftServer.TICK_PER_SECOND;
-
-            setVelocity(new Vec(velocity.x() / 2d - velocityModifier.x(),
-                    onGround ? Math.min(verticalLimit, velocity.y() / 2d + strength) : velocity.y(),
-                    velocity.z() / 2d - velocityModifier.z()
-            ));
+            Vec vec3d = this.getVelocity();
+            Vec vec3d1 = new Vec(x, z).normalize().mul(strength);
+            setVelocity(new Vec(vec3d.x() / 2.0D - vec3d1.x(), y, vec3d.z() / 2.0D - vec3d1.z()));
         }
     }
 

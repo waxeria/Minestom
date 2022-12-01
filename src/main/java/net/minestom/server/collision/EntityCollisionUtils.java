@@ -15,37 +15,38 @@ import java.util.HashSet;
  * @author <a href="https://github.com/iam4722202468">iam4722202468</a>, Obyvante
  * <a href="https://github.com/Minestom/Minestom/pull/763">from</a>
  */
+@SuppressWarnings("unused")
 public final class EntityCollisionUtils {
-    public static final Vec POWER = new Vec(0.07, 0.07, 0.07);
+    public static final Vec POWER = new Vec(0.1, 0.1, 0.1);
     public static final boolean[] COLLIDABLE = new boolean[EntityType.values().size()];
 
     static {
-        Arrays.fill(COLLIDABLE, true);
-        COLLIDABLE[EntityType.ITEM.id()] = false;
-        COLLIDABLE[EntityType.ITEM_FRAME.id()] = false;
-        COLLIDABLE[EntityType.PAINTING.id()] = false;
-        COLLIDABLE[EntityType.GLOW_ITEM_FRAME.id()] = false;
-        COLLIDABLE[EntityType.VILLAGER.id()] = false;
-        COLLIDABLE[EntityType.LLAMA_SPIT.id()] = false;
-        COLLIDABLE[EntityType.EXPERIENCE_ORB.id()] = false;
-        COLLIDABLE[EntityType.PAINTING.id()] = false;
-        COLLIDABLE[EntityType.ARMOR_STAND.id()] = false;
-        COLLIDABLE[EntityType.END_CRYSTAL.id()] = false;
-        COLLIDABLE[EntityType.AREA_EFFECT_CLOUD.id()] = false;
-        COLLIDABLE[EntityType.LIGHTNING_BOLT.id()] = false;
-        COLLIDABLE[EntityType.ARROW.id()] = false;
-        COLLIDABLE[EntityType.SPECTRAL_ARROW.id()] = false;
-        COLLIDABLE[EntityType.SHULKER_BULLET.id()] = false;
-        COLLIDABLE[EntityType.SNOWBALL.id()] = false;
-        COLLIDABLE[EntityType.FIREBALL.id()] = false;
-        COLLIDABLE[EntityType.DRAGON_FIREBALL.id()] = false;
-        COLLIDABLE[EntityType.SMALL_FIREBALL.id()] = false;
-        COLLIDABLE[EntityType.EGG.id()] = false;
-        COLLIDABLE[EntityType.TNT.id()] = false;
-        COLLIDABLE[EntityType.ENDER_PEARL.id()] = false;
-        COLLIDABLE[EntityType.EYE_OF_ENDER.id()] = false;
-        COLLIDABLE[EntityType.FALLING_BLOCK.id()] = false;
-        COLLIDABLE[EntityType.FISHING_BOBBER.id()] = false;
+        Arrays.fill(EntityCollisionUtils.COLLIDABLE, true);
+        EntityCollisionUtils.COLLIDABLE[EntityType.ITEM.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.ITEM_FRAME.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.PAINTING.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.GLOW_ITEM_FRAME.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.VILLAGER.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.LLAMA_SPIT.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.EXPERIENCE_ORB.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.PAINTING.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.ARMOR_STAND.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.END_CRYSTAL.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.AREA_EFFECT_CLOUD.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.LIGHTNING_BOLT.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.ARROW.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.SPECTRAL_ARROW.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.SHULKER_BULLET.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.SNOWBALL.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.FIREBALL.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.DRAGON_FIREBALL.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.SMALL_FIREBALL.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.EGG.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.TNT.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.ENDER_PEARL.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.EYE_OF_ENDER.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.FALLING_BLOCK.id()] = false;
+        EntityCollisionUtils.COLLIDABLE[EntityType.FISHING_BOBBER.id()] = false;
     }
 
     /**
