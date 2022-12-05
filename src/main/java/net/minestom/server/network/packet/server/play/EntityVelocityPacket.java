@@ -10,27 +10,27 @@ import org.jetbrains.annotations.NotNull;
 import static net.minestom.server.network.NetworkBuffer.SHORT;
 import static net.minestom.server.network.NetworkBuffer.VAR_INT;
 
-public record EntityVelocityPacket(int entityId, int velocityX, int velocityY, int velocityZ) implements ServerPacket {
-    public EntityVelocityPacket {
-        velocityX = MathUtils.clamp(velocityX, Short.MIN_VALUE, Short.MAX_VALUE);
-        velocityY = MathUtils.clamp(velocityY, Short.MIN_VALUE, Short.MAX_VALUE);
-        velocityZ = MathUtils.clamp(velocityZ, Short.MIN_VALUE, Short.MAX_VALUE);
-    }
-
+public record EntityVelocityPacket(int entityId, short velocityX, short velocityY,
+                                   short velocityZ) implements ServerPacket {
     public EntityVelocityPacket(@NotNull NetworkBuffer reader) {
-        this(reader.read(VAR_INT), (int) reader.read(SHORT), (int) reader.read(SHORT), (int) reader.read(SHORT));
+        this(reader.read(VAR_INT), reader.read(SHORT), reader.read(SHORT), reader.read(SHORT));
     }
 
     public EntityVelocityPacket(int entityId, Point velocity) {
-        this(entityId, (int) velocity.x(), (int) velocity.y(), (int) velocity.z());
+        this(
+                entityId,
+                (short) MathUtils.clamp(velocity.x(), Short.MIN_VALUE, Short.MAX_VALUE),
+                (short) MathUtils.clamp(velocity.y(), Short.MIN_VALUE, Short.MAX_VALUE),
+                (short) MathUtils.clamp(velocity.z(), Short.MIN_VALUE, Short.MAX_VALUE)
+        );
     }
 
     @Override
     public void write(@NotNull NetworkBuffer writer) {
         writer.write(VAR_INT, entityId);
-        writer.write(SHORT, (short) velocityX);
-        writer.write(SHORT, (short) velocityY);
-        writer.write(SHORT, (short) velocityZ);
+        writer.write(SHORT, velocityX);
+        writer.write(SHORT, velocityY);
+        writer.write(SHORT, velocityZ);
     }
 
     @Override
