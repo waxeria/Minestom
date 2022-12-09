@@ -45,7 +45,7 @@ public interface EventListener<T extends Event> {
     class Builder<T extends Event> {
         private final Class<T> eventType;
         private final List<Predicate<T>> filters = new ArrayList<>();
-        private boolean ignoreCancelled = true;
+        private boolean ignoreCancelled;
         private int expireCount;
         private Predicate<T> expireWhen;
         private Consumer<T> handler;
