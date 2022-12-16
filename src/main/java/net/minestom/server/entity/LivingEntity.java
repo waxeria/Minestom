@@ -15,6 +15,7 @@ import net.minestom.server.event.entity.EntityFireEvent;
 import net.minestom.server.event.item.EntityEquipEvent;
 import net.minestom.server.event.item.PickupItemEvent;
 import net.minestom.server.instance.EntityTracker;
+import net.minestom.server.instance.block.Block;
 import net.minestom.server.inventory.EquipmentHandler;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.ConnectionState;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public class LivingEntity extends Entity implements EquipmentHandler {
 
@@ -654,10 +656,20 @@ public class LivingEntity extends Entity implements EquipmentHandler {
      * @return The block position targeted by this entity, null if non are found
      */
     public Point getTargetBlockPosition(int maxDistance) {
+        return this.getTargetBlockPosition(maxDistance, block -> !getInstance().getBlock(position).isAir());
+    }
+
+    /**
+     * Gets the target (not-air) block position of the entity.
+     *
+     * @param maxDistance The max distance to scan before returning null
+     * @return The block position targeted by this entity, null if non are found
+     */
+    public Point getTargetBlockPosition(int maxDistance, Predicate<Block> predicate) {
         Iterator<Point> it = new BlockIterator(this, maxDistance);
         while (it.hasNext()) {
             final Point position = it.next();
-            if (!getInstance().getBlock(position).isAir()) return position;
+            if (predicate.test(getInstance().getBlock(position))) return position;
         }
         return null;
     }

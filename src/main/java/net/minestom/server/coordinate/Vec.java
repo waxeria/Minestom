@@ -497,4 +497,9 @@ public record Vec(double x, double y, double z) implements Point {
 
         double apply(double a);
     }
+
+    @Override
+    public String toString() {
+        return this.x + ", " + this.y + ", " + this.z;
+    }
 }

@@ -12,4 +12,8 @@ import org.jetbrains.annotations.NotNull;
  * @see Instance
  */
 public record Location(@NotNull Instance instance, @NotNull Pos pos) {
+    @Override
+    public String toString() {
+        return this.instance.getUniqueId() + " " + this.pos;
+    }
 }

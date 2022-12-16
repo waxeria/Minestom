@@ -295,4 +295,9 @@ public record Pos(double x, double y, double z, float yaw, float pitch) implemen
         }
         return yaw;
     }
+
+    @Override
+    public String toString() {
+        return this.x + ", " + this.y + ", " + this.z + ", " + this.yaw + ", " + this.pitch;
+    }
 }
