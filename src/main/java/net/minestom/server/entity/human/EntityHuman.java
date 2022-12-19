@@ -2,14 +2,12 @@ package net.minestom.server.entity.human;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.metadata.PlayerMeta;
 import net.minestom.server.network.packet.server.play.PlayerInfoPacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamManager;
-import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -98,7 +96,7 @@ public class EntityHuman extends LivingEntity {
         // Updates cached add packet.
         this.updateAddPacket();
         // Handles current viewers.
-        if (!this.viewers.isEmpty()) this.viewers.forEach(this::updateNewViewer);
+        this.viewers.forEach(this::updateNewViewer);
     }
 
     /**
@@ -110,7 +108,7 @@ public class EntityHuman extends LivingEntity {
         // Updates cached add packet.
         this.updateAddPacket();
         // Handles current viewers.
-        if (!this.viewers.isEmpty()) this.viewers.forEach(this::updateNewViewer);
+        this.viewers.forEach(this::updateNewViewer);
     }
 
     /**
@@ -153,12 +151,11 @@ public class EntityHuman extends LivingEntity {
     public void updateNewViewer(@NotNull Player player) {
         player.sendPacket(this.ADD_INFO_PACKET);
         super.updateNewViewer(player);
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
-            if (!this.viewers.contains(player)) return;
+        this.scheduleNextTick((_i) -> {
             player.sendPacket(this.REMOVE_INFO_PACKET);
             player.sendPacket(this.CREATE_TEAM_PACKET);
             player.sendPacket(this.ADD_TEAM_PACKET);
-        }).delay(TaskSchedule.seconds(1)).schedule();
+        });
     }
 
     /**
