@@ -2,10 +2,14 @@ package net.minestom.server.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.security.SecureRandom;
+
 public class StringUtils {
 
     public static final String SPACE = " ";
     public static final char SPACE_CHAR = ' ';
+    private static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final SecureRandom random = new SecureRandom();
 
     public static int countMatches(@NotNull final CharSequence str, final char ch) {
         if (str.length() == 0) {
@@ -143,5 +147,20 @@ public class StringUtils {
             sb.append(ch);
         }
         return sb.toString();
+    }
+
+    /**
+     * Generates a random string.
+     *
+     * @param length {@link int} length of the string.
+     * @return {@link String}
+     * @throws IllegalArgumentException if length is less than 1.
+     */
+    @NotNull
+    public static String generateRandomString(int length) {
+        final var builder = new StringBuilder(length);
+        for (int i = 0; i < length; i++)
+            builder.append(StringUtils.chars.charAt(StringUtils.random.nextInt(StringUtils.chars.length())));
+        return builder.toString();
     }
 }
