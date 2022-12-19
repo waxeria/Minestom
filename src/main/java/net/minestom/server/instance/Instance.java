@@ -24,6 +24,7 @@ import net.minestom.server.instance.block.BlockHandler;
 import net.minestom.server.instance.generator.Generator;
 import net.minestom.server.network.packet.server.play.BlockActionPacket;
 import net.minestom.server.network.packet.server.play.TimeUpdatePacket;
+import net.minestom.server.region.InstanceRegion;
 import net.minestom.server.snapshot.*;
 import net.minestom.server.tag.TagHandler;
 import net.minestom.server.tag.Taggable;
@@ -46,6 +47,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -101,6 +103,7 @@ public abstract class Instance implements Block.Getter, Block.Setter,
 
     // Adventure
     private final Pointers pointers;
+    private final ConcurrentHashMap<String, InstanceRegion> regions = new ConcurrentHashMap<>(0);
 
     /**
      * Creates a new instance.
@@ -578,6 +581,75 @@ public abstract class Instance implements Block.Getter, Block.Setter,
     }
 
     /**
+     * @return {@link Collection<InstanceRegion>}
+     */
+    @NotNull
+    public Collection<InstanceRegion> getRegions() {
+        return this.regions.values();
+    }
+
+    /**
+     * Finds a region by its id.
+     *
+     * @param id {@link String} region id.
+     * @return {@link Optional<InstanceRegion>}
+     * @throws NullPointerException if {@param id} is {@code null}.
+     * @see InstanceRegion
+     */
+    @NotNull
+    public Optional<InstanceRegion> findRegion(@NotNull final String id) {
+        return Optional.ofNullable(this.regions.get(Objects.requireNonNull(id)));
+    }
+
+    /**
+     * Gets a region by its id.
+     *
+     * @param id {@link String} region id.
+     * @return {@link InstanceRegion}
+     * @throws NullPointerException   if {@param id} is {@code null}.
+     * @throws NoSuchElementException if the region is not found.
+     * @see InstanceRegion
+     */
+    @NotNull
+    public InstanceRegion getRegion(@NotNull final String id) {
+        return this.findRegion(id).orElseThrow(() -> new NoSuchElementException("Region " + id + " not found."));
+    }
+
+    /**
+     * Adds a region to the instance.
+     *
+     * @param region {@link InstanceRegion} region to add.
+     * @throws NullPointerException     if {@param region} is {@code null}.
+     * @throws IllegalArgumentException if the region's instance is not this instance.
+     * @throws IllegalArgumentException if the region's id is already used.
+     * @see InstanceRegion
+     */
+    public void addRegion(@NotNull final InstanceRegion region) {
+        if (region.getInstance() != this)
+            throw new IllegalArgumentException("Region " + region.getId() + " is not from this instance.");
+        if (this.regions.containsKey(region.getId()))
+            throw new IllegalArgumentException("Region " + region.getId() + " is already added.");
+        this.regions.put(region.getId(), region);
+    }
+
+    /**
+     * Removes a region from the instance.
+     *
+     * @param region {@link InstanceRegion} region to remove.
+     * @throws NullPointerException     if {@param region} is {@code null}.
+     * @throws IllegalArgumentException if the region's instance is not this instance.
+     * @throws IllegalArgumentException if the region is not added.
+     * @see InstanceRegion
+     */
+    public void removeRegion(@NotNull final InstanceRegion region) {
+        if (region.getInstance() != this)
+            throw new IllegalArgumentException("Region " + region.getId() + " is not from this instance.");
+        if (!this.regions.containsKey(region.getId()))
+            throw new IllegalArgumentException("Region " + region.getId() + " is not added.");
+        this.regions.remove(region.getId());
+    }
+
+    /**
      * Gets the instance unique id.
      *
      * @return the instance unique id
@@ -614,6 +686,11 @@ public abstract class Instance implements Block.Getter, Block.Setter,
             EventDispatcher.call(new InstanceTickEvent(this, time, lastTickAge));
             // Set last tick age
             this.lastTickAge = time;
+        }
+        // Region
+        {
+            // Process region tick events
+            this.regions.values().forEach(region -> region.tick(time));
         }
         this.worldBorder.update();
     }
@@ -708,5 +785,18 @@ public abstract class Instance implements Block.Getter, Block.Setter,
     @Override
     public @NotNull Pointers pointers() {
         return this.pointers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Instance instance = (Instance) o;
+        return uniqueId.equals(instance.uniqueId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uniqueId);
     }
 }
