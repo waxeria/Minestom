@@ -618,18 +618,22 @@ public abstract class Instance implements Block.Getter, Block.Setter,
     /**
      * Adds a region to the instance.
      *
-     * @param region {@link InstanceRegion} region to add.
-     * @throws NullPointerException     if {@param region} is {@code null}.
-     * @throws IllegalArgumentException if the region's instance is not this instance.
-     * @throws IllegalArgumentException if the region's id is already used.
+     * @param id    {@link String} the id of the region.
+     * @param edge1 {@link Point} first edge of the region.
+     * @param edge2 {@link Point} second edge of the region.
+     * @return {@link InstanceRegion}
+     * @throws NullPointerException if {@param id}, {@param edge1} or {@param edge2} is {@code null}.
+     * @throws IllegalArgumentException if the region is already added.
+     * @see Point
      * @see InstanceRegion
      */
-    public void addRegion(@NotNull final InstanceRegion region) {
-        if (region.getInstance() != this)
-            throw new IllegalArgumentException("Region " + region.getId() + " is not from this instance.");
-        if (this.regions.containsKey(region.getId()))
-            throw new IllegalArgumentException("Region " + region.getId() + " is already added.");
-        this.regions.put(region.getId(), region);
+    @NotNull
+    public InstanceRegion addRegion(@NotNull final String id, @NotNull final Point edge1, @NotNull final Point edge2) {
+        if (this.regions.containsKey(Objects.requireNonNull(id)))
+            throw new IllegalArgumentException("Region " + id + " already exists.");
+        final var instance_region = new InstanceRegion(id, this, edge1, edge2);
+        this.regions.put(id, instance_region);
+        return instance_region;
     }
 
     /**

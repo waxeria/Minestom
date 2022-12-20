@@ -28,18 +28,26 @@ public class InstanceRegion extends Region implements Tickable {
     /**
      * Creates a new {@link InstanceRegion} with the two edges.
      *
-     * @param instance {@link Instance} the instance of the region.
      * @param id       {@link String} the id of the region.
+     * @param instance {@link Instance} the instance of the region.
      * @param edge1    {@link Point} first edge of the region.
      * @param edge2    {@link Point} second edge of the region.
-     * @throws NullPointerException if {@param instance}, {@param edge1} or {@param edge2} is {@code null}.
+     * @throws NullPointerException if {@param id}, {@param instance}, {@param edge1} or {@param edge2} is {@code null}.
      * @see Point
      * @see Instance
      */
-    public InstanceRegion(@NotNull final Instance instance, @NotNull final String id, @NotNull final Point edge1, @NotNull final Point edge2) {
+    public InstanceRegion(@NotNull final String id, @NotNull final Instance instance, @NotNull final Point edge1, @NotNull final Point edge2) {
         super(edge1, edge2);
-        this.instance = Objects.requireNonNull(instance);
         this.id = Objects.requireNonNull(id);
+        this.instance = Objects.requireNonNull(instance);
+    }
+
+    /**
+     * @return {@link String}
+     */
+    @NotNull
+    public final String getId() {
+        return this.id;
     }
 
     /**
@@ -49,14 +57,6 @@ public class InstanceRegion extends Region implements Tickable {
     @NotNull
     public final Instance getInstance() {
         return this.instance;
-    }
-
-    /**
-     * @return {@link String}
-     */
-    @NotNull
-    public final String getId() {
-        return this.id;
     }
 
     /**
@@ -71,6 +71,15 @@ public class InstanceRegion extends Region implements Tickable {
      */
     public final boolean contains(@NotNull final Instance instance, @NotNull final Point point) {
         return this.instance.equals(instance) && super.contains(point);
+    }
+
+    /**
+     * @return {@link Set<Player>}
+     * @see Player
+     */
+    @NotNull
+    public Set<Player> getPlayers() {
+        return this.players;
     }
 
 
@@ -133,6 +142,11 @@ public class InstanceRegion extends Region implements Tickable {
         this.exitHandlers.remove(Objects.requireNonNull(handler));
         return this;
     }
+
+
+    /*
+    OVERRIDES
+     */
 
     /**
      * {@inheritDoc}

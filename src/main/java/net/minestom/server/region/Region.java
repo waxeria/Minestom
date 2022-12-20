@@ -1,6 +1,7 @@
 package net.minestom.server.region;
 
 import net.minestom.server.coordinate.Point;
+import net.minestom.server.coordinate.Vec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -56,6 +57,38 @@ public class Region {
     @NotNull
     public final Point getEdge2() {
         return this.edge2;
+    }
+
+    /**
+     * Gets center of the region.
+     *
+     * @return {@link Vec}
+     * @see Vec
+     */
+    public final Vec getCenter() {
+        return this.getCenter(true);
+    }
+
+    /**
+     * Gets center of the region.
+     *
+     * @param includeY {@code true} if the y coordinate should be included, {@code false} otherwise.
+     * @return {@link Vec}
+     * @see Vec
+     */
+    public final Vec getCenter(final boolean includeY) {
+        return new Vec(
+                (this.maxX + this.minX) / 2,
+                includeY ? (this.maxY + this.minY) / 2 : 0,
+                (this.maxZ + this.minZ) / 2
+        );
+    }
+
+    /**
+     * @return {@link double}
+     */
+    public final double getSize() {
+        return (this.maxX - this.minX) * (this.maxZ - this.minZ);
     }
 
     /**
