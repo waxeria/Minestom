@@ -323,6 +323,9 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     public @NotNull CompletableFuture<Void> teleport(@NotNull Pos position, long @Nullable [] chunks) {
         Check.stateCondition(instance == null, "You need to use Entity#setInstance before teleporting an entity!");
         final Runnable endCallback = () -> {
+            EntityTeleportEvent entityTeleportEvent = new EntityTeleportEvent(this, position);
+            EventDispatcher.call(entityTeleportEvent);
+            if (entityTeleportEvent.isCancelled()) return;
             this.previousPosition = this.position;
             this.position = position;
             refreshCoordinate(position);

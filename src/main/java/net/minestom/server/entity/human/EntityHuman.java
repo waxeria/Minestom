@@ -37,8 +37,6 @@ public class EntityHuman extends LivingEntity {
         super(EntityType.PLAYER, uuid);
         // Updates player meta.
         this.updatePlayerMeta();
-        // Creates team.
-        this.setTeam(new TeamManager().createTeam(this.uuid.toString() + ":" + UUID.randomUUID()));
         // Initializes packets.
         this.createPackets();
     }
@@ -47,8 +45,6 @@ public class EntityHuman extends LivingEntity {
         super(EntityType.PLAYER);
         // Updates player meta.
         this.updatePlayerMeta();
-        // Creates team.
-        this.setTeam(new TeamManager().createTeam(this.uuid.toString() + ":" + UUID.randomUUID()));
         // Initializes packets.
         this.createPackets();
     }
@@ -117,10 +113,10 @@ public class EntityHuman extends LivingEntity {
     @Override
     public void setCustomNameVisible(final boolean customNameVisible) {
         super.setCustomNameVisible(customNameVisible);
-        // Updates cached team packet.
-        this.updateTeamPacket();
         // Updates team name tag visibility.
         this.team.setNameTagVisibility(customNameVisible ? TeamsPacket.NameTagVisibility.ALWAYS : TeamsPacket.NameTagVisibility.NEVER);
+        // Updates cached team packet.
+        this.updateTeamPacket();
     }
 
     /**
