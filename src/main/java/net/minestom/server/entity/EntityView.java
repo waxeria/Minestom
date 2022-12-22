@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 final class EntityView {
     private static final int RANGE = MinecraftServer.getEntityViewDistance();
     private final Entity entity;
-    private final Set<Player> manualViewers = new HashSet<>();
+    private final Set<Player> manualViewers = Collections.synchronizedSet(new HashSet<>());
 
     // Decide if this entity should be viewable to X players
     public final Option<Player> viewableOption;
@@ -96,7 +96,7 @@ final class EntityView {
 
     public void forManuals(@NotNull Consumer<Player> consumer) {
         synchronized (mutex) {
-            new HashSet<>(this.manualViewers).forEach(consumer);
+            this.manualViewers.forEach(consumer);
         }
     }
 
