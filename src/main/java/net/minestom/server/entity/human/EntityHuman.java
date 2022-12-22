@@ -11,6 +11,7 @@ import net.minestom.server.scoreboard.TeamManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -147,11 +148,12 @@ public class EntityHuman extends LivingEntity {
     public void updateNewViewer(@NotNull Player player) {
         player.sendPacket(this.ADD_INFO_PACKET);
         super.updateNewViewer(player);
-        this.scheduleNextTick((_i) -> {
+        player.sendPacket(this.CREATE_TEAM_PACKET);
+        player.sendPacket(this.ADD_TEAM_PACKET);
+        this.scheduler().buildTask(() -> {
+            if (!this.isActive() || this.isDead || !this.viewers.contains(player)) return;
             player.sendPacket(this.REMOVE_INFO_PACKET);
-            player.sendPacket(this.CREATE_TEAM_PACKET);
-            player.sendPacket(this.ADD_TEAM_PACKET);
-        });
+        }).delay(Duration.ofMillis(player.getLatency())).schedule();
     }
 
     /**

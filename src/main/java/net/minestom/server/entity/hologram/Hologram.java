@@ -27,8 +27,6 @@ public class Hologram implements Viewable {
     private Pos position;
     private Component text;
 
-    private boolean removed;
-
     /**
      * Constructs a new {@link Hologram} with the given parameters.
      *
@@ -68,8 +66,7 @@ public class Hologram implements Viewable {
         // Performance.
         this.entity.disableAllTicks();
 
-        ArmorStandMeta armorStandMeta = (ArmorStandMeta) entity.getEntityMeta();
-
+        ArmorStandMeta armorStandMeta = (ArmorStandMeta) this.entity.getEntityMeta();
         armorStandMeta.setNotifyAboutChanges(false);
 
         if (marker) {
@@ -136,17 +133,7 @@ public class Hologram implements Viewable {
      * Removes the hologram.
      */
     public void remove() {
-        this.removed = true;
         this.entity.remove();
-    }
-
-    /**
-     * Checks if the hologram is still present.
-     *
-     * @return true if the hologram is present, false otherwise
-     */
-    public boolean isRemoved() {
-        return removed;
     }
 
     /**
@@ -184,9 +171,9 @@ public class Hologram implements Viewable {
     }
 
     /**
-     * @see #isRemoved()
+     * @see Entity#isRemoved()
      */
     private void checkRemoved() {
-        Check.stateCondition(isRemoved(), "You cannot interact with a removed Hologram");
+        Check.stateCondition(this.entity.isRemoved(), "You cannot interact with a removed Hologram");
     }
 }

@@ -664,7 +664,6 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     }
 
     private void velocityTick() {
-        //if (this.viewEngine.hasPredictableViewers()) return;
         this.gravityTickCount = onGround ? 0 : gravityTickCount + 1;
         if (vehicle != null) return;
 

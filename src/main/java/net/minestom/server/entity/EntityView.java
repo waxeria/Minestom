@@ -96,7 +96,7 @@ final class EntityView {
 
     public void forManuals(@NotNull Consumer<Player> consumer) {
         synchronized (mutex) {
-            this.manualViewers.forEach(consumer);
+            new HashSet<>(this.manualViewers).forEach(consumer);
         }
     }
 
