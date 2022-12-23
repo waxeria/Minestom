@@ -1,6 +1,7 @@
 package net.minestom.server.timer;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import net.minestom.server.MinecraftServer;
 import org.jctools.queues.MpscUnboundedArrayQueue;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +20,7 @@ final class SchedulerImpl implements Scheduler {
     private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread thread = new Thread(r);
         thread.setDaemon(true);
+        //thread.setUncaughtExceptionHandler((t, throwable) -> MinecraftServer.getExceptionManager().getExceptionHandler().handleException(throwable));
         return thread;
     });
     private static final ForkJoinPool EXECUTOR = ForkJoinPool.commonPool();
@@ -89,23 +91,27 @@ final class SchedulerImpl implements Scheduler {
     }
 
     private void handleTask(TaskImpl task) {
-        final TaskSchedule schedule = task.task().get();
-        if (schedule instanceof TaskScheduleImpl.DurationSchedule durationSchedule) {
-            final Duration duration = durationSchedule.duration();
-            SCHEDULER.schedule(() -> safeExecute(task), duration.toMillis(), TimeUnit.MILLISECONDS);
-        } else if (schedule instanceof TaskScheduleImpl.TickSchedule tickSchedule) {
-            synchronized (this) {
-                final int target = tickState + tickSchedule.tick();
-                this.tickTaskQueue.computeIfAbsent(target, i -> new ArrayList<>()).add(task);
+        try {
+            final TaskSchedule schedule = task.task().get();
+            if (schedule instanceof TaskScheduleImpl.DurationSchedule durationSchedule) {
+                final Duration duration = durationSchedule.duration();
+                SCHEDULER.schedule(() -> safeExecute(task), duration.toMillis(), TimeUnit.MILLISECONDS);
+            } else if (schedule instanceof TaskScheduleImpl.TickSchedule tickSchedule) {
+                synchronized (this) {
+                    final int target = tickState + tickSchedule.tick();
+                    this.tickTaskQueue.computeIfAbsent(target, i -> new ArrayList<>()).add(task);
+                }
+            } else if (schedule instanceof TaskScheduleImpl.FutureSchedule futureSchedule) {
+                futureSchedule.future().thenRun(() -> safeExecute(task));
+            } else if (schedule instanceof TaskScheduleImpl.Park) {
+                task.parked = true;
+            } else if (schedule instanceof TaskScheduleImpl.Stop) {
+                task.cancel();
+            } else if (schedule instanceof TaskScheduleImpl.Immediate) {
+                this.taskQueue.relaxedOffer(task);
             }
-        } else if (schedule instanceof TaskScheduleImpl.FutureSchedule futureSchedule) {
-            futureSchedule.future().thenRun(() -> safeExecute(task));
-        } else if (schedule instanceof TaskScheduleImpl.Park) {
-            task.parked = true;
-        } else if (schedule instanceof TaskScheduleImpl.Stop) {
-            task.cancel();
-        } else if (schedule instanceof TaskScheduleImpl.Immediate) {
-            this.taskQueue.relaxedOffer(task);
+        } catch (Exception exception) {
+            MinecraftServer.getExceptionManager().handleException(exception);
         }
     }
 }
