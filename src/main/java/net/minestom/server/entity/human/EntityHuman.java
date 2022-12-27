@@ -8,6 +8,7 @@ import net.minestom.server.network.packet.server.play.PlayerInfoPacket;
 import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
 import net.minestom.server.scoreboard.TeamManager;
+import net.minestom.server.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
  * @author Obyvante
  */
 public class EntityHuman extends LivingEntity {
+    private final String nameId = StringUtils.generateRandomString(16);
     private PlayerSkin skin;
 
     // Team
@@ -64,14 +66,15 @@ public class EntityHuman extends LivingEntity {
 
     private void createPackets() {
         // Creates team.
-        this.team = new TeamManager().createTeam(this.uuid.toString() + ":" + UUID.randomUUID());
+        this.team = new TeamManager().createTeam("entity:human:" +this.uuid.toString());
+        this.team.setNameTagVisibility(TeamsPacket.NameTagVisibility.NEVER);
 
         // Initializes packets.
         this.updateAddPacket();
         this.REMOVE_INFO_PACKET = new PlayerInfoPacket(PlayerInfoPacket.Action.REMOVE_PLAYER, Collections.singletonList(new PlayerInfoPacket.RemovePlayer(this.uuid)));
         this.CREATE_TEAM_PACKET = this.team.createTeamsCreationPacket();
-        this.ADD_TEAM_PACKET = new TeamsPacket(this.team.getTeamName(), new TeamsPacket.AddEntitiesToTeamAction(Collections.singletonList(this.uuid.toString())));
         this.REMOVE_TEAM_PACKET = this.team.createTeamDestructionPacket();
+        this.ADD_TEAM_PACKET = new TeamsPacket(this.team.getTeamName(), new TeamsPacket.AddEntitiesToTeamAction(Collections.singletonList(this.nameId)));
     }
 
     /**
@@ -126,7 +129,7 @@ public class EntityHuman extends LivingEntity {
     private void updateAddPacket() {
         this.ADD_INFO_PACKET = new PlayerInfoPacket(PlayerInfoPacket.Action.ADD_PLAYER, Collections.singletonList(new PlayerInfoPacket.AddPlayer(
                 this.uuid,
-                this.getCustomName() == null ? "" : PlainTextComponentSerializer.plainText().serialize(this.getCustomName()),
+                this.nameId,
                 this.skin == null || this.skin.textures() == null ? List.of() : Collections.singletonList(new PlayerInfoPacket.AddPlayer.Property("textures", this.skin.textures(), this.skin.signature())),
                 GameMode.CREATIVE,
                 0,
@@ -148,12 +151,12 @@ public class EntityHuman extends LivingEntity {
     public void updateNewViewer(@NotNull Player player) {
         player.sendPacket(this.ADD_INFO_PACKET);
         super.updateNewViewer(player);
-        player.sendPacket(this.CREATE_TEAM_PACKET);
-        player.sendPacket(this.ADD_TEAM_PACKET);
         this.scheduler().buildTask(() -> {
             if (!this.isActive() || this.isDead || !this.viewers.contains(player)) return;
+            player.sendPacket(this.CREATE_TEAM_PACKET);
+            player.sendPacket(this.ADD_TEAM_PACKET);
             player.sendPacket(this.REMOVE_INFO_PACKET);
-        }).delay(Duration.ofMillis(player.getLatency())).schedule();
+        }).delay(Duration.ofMillis(player.getLatency() * 2L)).schedule();
     }
 
     /**
