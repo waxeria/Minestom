@@ -79,6 +79,8 @@ public class Hologram implements Viewable {
         armorStandMeta.setCustomName(Component.empty());
         armorStandMeta.setCustomNameVisible(true);
         armorStandMeta.setInvisible(true);
+        // Makes the hologram shine.
+        armorStandMeta.setOnFire(true);
 
         armorStandMeta.setNotifyAboutChanges(true);
 
