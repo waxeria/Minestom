@@ -124,6 +124,14 @@ public class EntityHuman extends LivingEntity {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Team getTeam() {
+        return this.team;
+    }
+
+    /**
      * Updates add packet.
      */
     private void updateAddPacket() {
@@ -140,7 +148,7 @@ public class EntityHuman extends LivingEntity {
     /**
      * Updates add packet.
      */
-    private void updateTeamPacket() {
+    public void updateTeamPacket() {
         this.CREATE_TEAM_PACKET = this.team.createTeamsCreationPacket();
     }
 

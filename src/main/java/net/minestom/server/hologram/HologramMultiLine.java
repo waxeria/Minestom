@@ -32,6 +32,22 @@ public class HologramMultiLine {
     protected Hologram[] holograms = new Hologram[0];
     protected double[] indexOffsets = new double[0];
     private Pos lastPosition;
+    private boolean autoViewable = false;
+
+    /**
+     * Creates a new {@link HologramMultiLine}.
+     */
+    public HologramMultiLine() {
+    }
+
+    /**
+     * Creates a new {@link HologramMultiLine}.
+     *
+     * @param autoViewable If the {@link HologramMultiLine} should be automatically viewable.
+     */
+    public HologramMultiLine(final boolean autoViewable) {
+        this.autoViewable = autoViewable;
+    }
 
     /**
      * @return {@link Collection<Hologram>} of the holograms this hologram is rendered on.
@@ -146,15 +162,56 @@ public class HologramMultiLine {
     }
 
     /**
+     * Removes line at the given index.
+     *
+     * @param index {@link int} index of {@link Component} hologram.
+     * @return {@link HologramMultiLine} (this)
+     */
+    @NotNull
+    public HologramMultiLine removeLineContent(final int index) {
+        // Declares required variable(s).
+        final var entity = this.holograms[0].getEntity();
+        // Handles the case where the hologram is not yet created.
+        this.content.remove(index);
+        // Updates content.
+        this.updateContent(Objects.requireNonNull(entity.getInstance()), entity.getPosition(), this.content);
+        return this;
+    }
+
+
+    /**
+     * Adds content to line.
+     *
+     * @param index       {@link int} index of {@link Component} hologram.
+     * @param lineContent {@link Component} to add the hologram with.
+     * @return {@link HologramMultiLine} (this)
+     * @throws NullPointerException if {@param content} is {@code null}.
+     */
+    @NotNull
+    public HologramMultiLine addLineContent(final int index, @NotNull final Component lineContent) {
+        // Declares required variable(s).
+        final var entity = this.holograms[0].getEntity();
+        // Handles the case where the hologram is not yet created.
+        this.content.add(index, Objects.requireNonNull(lineContent));
+        // Updates content.
+        this.updateContent(Objects.requireNonNull(entity.getInstance()), entity.getPosition(), this.content);
+        return this;
+    }
+
+    /**
      * Updates content line.
      *
      * @param index       {@link int} index of {@link Component} hologram.
      * @param lineContent {@link Component} to update the hologram with.
+     * @return {@link HologramMultiLine} (this)
      * @throws NullPointerException if {@param content} is {@code null}.
      */
-    public void updateLineContent(final int index, @NotNull final Component lineContent) {
+    @NotNull
+    public HologramMultiLine updateLineContent(final int index, @NotNull final Component lineContent) {
+        // Handles the case where the index is in bounds.
         this.content.set(index, lineContent);
         this.holograms[index].setText(Objects.requireNonNull(lineContent));
+        return this;
     }
 
     /**
@@ -182,7 +239,7 @@ public class HologramMultiLine {
                     instance,
                     pos.withY(y -> y + calculation),
                     this.content.get(index),
-                    false,
+                    this.autoViewable,
                     true);
             // Adds new hologram to the cache.
             this.holograms[index] = hologram;
