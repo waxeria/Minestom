@@ -165,6 +165,20 @@ public abstract class Instance implements Block.Getter, Block.Setter,
     public abstract @NotNull CompletableFuture<@NotNull Chunk> loadChunk(int chunkX, int chunkZ);
 
     /**
+     * Forces load chunk
+     *
+     * @param chunkPosition the chunk position
+     * @return Chunk
+     */
+    public @NotNull Chunk forceLoadChunk(@NotNull Point chunkPosition) {
+        try {
+            return loadChunk(chunkPosition).get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Loads the chunk at the given {@link Point} with a callback.
      *
      * @param point the chunk position
@@ -622,7 +636,7 @@ public abstract class Instance implements Block.Getter, Block.Setter,
      * @param edge1 {@link Point} first edge of the region.
      * @param edge2 {@link Point} second edge of the region.
      * @return {@link InstanceRegion}
-     * @throws NullPointerException if {@param id}, {@param edge1} or {@param edge2} is {@code null}.
+     * @throws NullPointerException     if {@param id}, {@param edge1} or {@param edge2} is {@code null}.
      * @throws IllegalArgumentException if the region is already added.
      * @see Point
      * @see InstanceRegion
