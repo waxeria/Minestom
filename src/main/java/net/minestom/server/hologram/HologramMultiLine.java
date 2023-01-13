@@ -223,26 +223,45 @@ public class HologramMultiLine {
      * @throws NullPointerException if {@param content} is {@code null}.
      */
     public void updateContent(@NotNull final Instance instance, @NotNull final Pos pos, @NotNull final List<Component> content) {
+        this.updateContent(instance, pos, content, 0);
+    }
+
+    /**
+     * Updates current content.
+     *
+     * @param instance    {@link Instance} of the multi line hologram.
+     * @param pos         {@link Pos} of the multi line hologram.
+     * @param content     {@link List<Component>}
+     * @param extraOffset Extra offset to add to the index offset.
+     * @throws NullPointerException if {@param content} is {@code null}.
+     */
+    public void updateContent(@NotNull final Instance instance, @NotNull final Pos pos, @NotNull final List<Component> content, final double extraOffset) {
+
         // Creates a new list with the new holograms.
         this.content = new ArrayList<>(Objects.requireNonNull(content));
         this.indexOffsets = new double[this.content.size()];
 
         // Clears the holograms cache.
+        final var viewers = new HashSet<Player>(0);
+        if (!this.autoViewable && this.holograms.length > 0)
+            viewers.addAll(this.holograms[0].getViewers());
         for (final var hologram : this.holograms) hologram.remove();
         this.holograms = new Hologram[this.content.size()];
 
         // Creates new holograms with the new holograms.
         for (int index = content.size() - 1; index >= 0; index--) {
-            final var calculation = ((this.content.size() - 1) - index) * HologramMultiLine.DEFAULT_NAMEPLATE_Y_OFFSET_STEP;
-            this.indexOffsets[index] = calculation;
+            int final_index = index;
+            final var calculation = ((this.content.size() - 1) - final_index) * HologramMultiLine.DEFAULT_NAMEPLATE_Y_OFFSET_STEP;
+            this.indexOffsets[final_index] = calculation;
             final var hologram = new Hologram(
                     instance,
-                    pos.withY(y -> y + calculation),
-                    this.content.get(index),
+                    pos.withY(y -> this.getIndexOffsets(extraOffset + y)[final_index]),
+                    this.content.get(final_index),
                     this.autoViewable,
                     true);
+            if (!this.autoViewable) viewers.forEach(hologram::addViewer);
             // Adds new hologram to the cache.
-            this.holograms[index] = hologram;
+            this.holograms[final_index] = hologram;
         }
     }
 

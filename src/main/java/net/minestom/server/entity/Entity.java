@@ -109,6 +109,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
 
     // Velocity
     protected Vec velocity = Vec.ZERO; // Movement in block per second
+    protected Vec motion = Vec.ZERO; // Movement in block per tick
     protected boolean lastVelocityWasZero = true;
     protected boolean hasPhysics = true;
     protected boolean hasCollisions = true;
@@ -764,6 +765,7 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     private void movementTick() {
         if (this.lastLocation != null && this.lastLocation.samePoint(this.position)) return;
         this.lastLocation = this.position;
+        this.motion = this.position.sub(this.previousPosition).asVec();
         EventDispatcher.call(new EntityMoveEvent(this, this.position));
     }
 
@@ -1103,6 +1105,16 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
             // The entity does not have velocity if the velocity is zero
             return !velocity.isZero();
         }
+    }
+
+    /**
+     * Gets entity's motion.
+     *
+     * @return entity's motion
+     */
+    @NotNull
+    public Vec getMotion() {
+        return this.motion;
     }
 
     /**

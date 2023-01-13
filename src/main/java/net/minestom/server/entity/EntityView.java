@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -19,7 +20,7 @@ import java.util.function.Predicate;
 final class EntityView {
     private static final int RANGE = MinecraftServer.getEntityViewDistance();
     private final Entity entity;
-    private final Set<Player> manualViewers = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Player> manualViewers = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     // Decide if this entity should be viewable to X players
     public final Option<Player> viewableOption;

@@ -84,7 +84,7 @@ public class Hologram implements Viewable {
 
         armorStandMeta.setNotifyAboutChanges(true);
 
-        this.entity.setInstance(instance, spawnPosition.add(0, this.yOffset, 0));
+        this.entity.setInstance(instance, spawnPosition);
         this.entity.setAutoViewable(autoViewable);
 
         this.position = spawnPosition;
