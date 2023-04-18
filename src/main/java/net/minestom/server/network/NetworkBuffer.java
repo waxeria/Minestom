@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.network.packet.server.play.data.DeathLocation;
 import net.minestom.server.utils.Direction;
 import net.minestom.server.utils.Either;
 import org.jetbrains.annotations.ApiStatus;
@@ -16,9 +15,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTWriter;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -54,11 +51,13 @@ public final class NetworkBuffer {
     public static final Type<Point> OPT_BLOCK_POSITION = NetworkBufferTypes.OPT_BLOCK_POSITION;
     public static final Type<Direction> DIRECTION = NetworkBufferTypes.DIRECTION;
     public static final Type<UUID> OPT_UUID = NetworkBufferTypes.OPT_UUID;
-    public static final Type<Integer> OPT_BLOCK_ID = NetworkBufferTypes.OPT_BLOCK_ID;
+    public static final Type<Integer> BLOCK_STATE = NetworkBufferTypes.BLOCK_STATE;
+    public static final Type<Integer> OPT_BLOCK_STATE = NetworkBufferTypes.OPT_BLOCK_STATE;
     public static final Type<int[]> VILLAGER_DATA = NetworkBufferTypes.VILLAGER_DATA;
     public static final Type<Integer> OPT_VAR_INT = NetworkBufferTypes.OPT_VAR_INT;
     public static final Type<Entity.Pose> POSE = NetworkBufferTypes.POSE;
-    public static final Type<DeathLocation> DEATH_LOCATION = NetworkBufferTypes.DEATH_LOCATION;
+    public static final Type<Point> VECTOR3 = NetworkBufferTypes.VECTOR3;
+    public static final Type<float[]> QUATERNION = NetworkBufferTypes.QUATERNION;
 
     ByteBuffer nioBuffer;
     final boolean resizable;
@@ -202,6 +201,43 @@ public final class NetworkBuffer {
 
     public <E extends Enum<?>> @NotNull E readEnum(@NotNull Class<@NotNull E> enumClass) {
         return enumClass.getEnumConstants()[read(VAR_INT)];
+    }
+
+    public <E extends Enum<E>> void writeEnumSet(EnumSet<E> enumSet, Class<E> enumType) {
+        final E[] values = enumType.getEnumConstants();
+        BitSet bitSet = new BitSet(values.length);
+        for (int i = 0; i < values.length; ++i) {
+            bitSet.set(i, enumSet.contains(values[i]));
+        }
+        writeFixedBitSet(bitSet, values.length);
+    }
+
+    public <E extends Enum<E>> @NotNull EnumSet<E> readEnumSet(Class<E> enumType) {
+        final E[] values = enumType.getEnumConstants();
+        BitSet bitSet = readFixedBitSet(values.length);
+        EnumSet<E> enumSet = EnumSet.noneOf(enumType);
+        for (int i = 0; i < values.length; ++i) {
+            if (bitSet.get(i)) {
+                enumSet.add(values[i]);
+            }
+        }
+        return enumSet;
+    }
+
+    public void writeFixedBitSet(BitSet set, int length) {
+        final int setLength = set.length();
+        if (setLength > length) {
+            throw new IllegalArgumentException("BitSet is larger than expected size (" + setLength + ">" + length + ")");
+        } else {
+            final byte[] array = set.toByteArray();
+            write(RAW_BYTES, array);
+        }
+    }
+
+    @NotNull
+    public BitSet readFixedBitSet(int length) {
+        final byte[] array = readBytes((length + 7) / 8);
+        return BitSet.valueOf(array);
     }
 
     public byte[] readBytes(int length) {

@@ -34,7 +34,7 @@ public record ClientClickWindowPacket(byte windowId, int stateId,
         writer.write(ITEM, clickedItem);
     }
 
-    public record ChangedSlot(short slot, @NotNull ItemStack item) implements NetworkBuffer.Writer {
+    public record ChangedSlot(short slot, @NotNull ItemStack item) implements Writer {
         public ChangedSlot(@NotNull NetworkBuffer reader) {
             this(reader.read(SHORT), reader.read(ITEM));
         }

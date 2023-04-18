@@ -63,10 +63,6 @@ public final class Server {
         server.register(selector, SelectionKey.OP_ACCEPT);
         this.serverSocket = server;
         this.socketAddress = address;
-
-        if (address instanceof InetSocketAddress && port == 0) {
-            port = server.socket().getLocalPort();
-        }
     }
 
     @ApiStatus.Internal

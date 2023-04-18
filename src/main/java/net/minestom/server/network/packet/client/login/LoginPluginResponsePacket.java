@@ -55,7 +55,7 @@ public record LoginPluginResponsePacket(int messageId, byte @Nullable [] data) i
                                 MinecraftServer.getExceptionManager().handleException(e);
                                 return;
                             }
-                            final int port = ((java.net.InetSocketAddress) connection.getRemoteAddress()).getPort();
+                            final int port = ((InetSocketAddress) connection.getRemoteAddress()).getPort();
                             socketAddress = new InetSocketAddress(address, port);
                             gameProfile = new GameProfile(buffer);
                         }

@@ -37,7 +37,7 @@ public record DeclareCommandsPacket(@NotNull List<Node> nodes,
         return ServerPacketIdentifier.DECLARE_COMMANDS;
     }
 
-    public static final class Node implements NetworkBuffer.Writer {
+    public static final class Node implements Writer {
         public byte flags;
         public int[] children = new int[0];
         public int redirectedNode; // Only if flags & 0x08
@@ -50,7 +50,7 @@ public record DeclareCommandsPacket(@NotNull List<Node> nodes,
         public void write(@NotNull NetworkBuffer writer) {
             writer.write(BYTE, flags);
 
-            if (children != null && children.length > 262114) {
+            if (children.length > 262114) {
                 throw new RuntimeException("Children length " + children.length + " is bigger than the maximum allowed " + 262114);
             }
             writer.write(VAR_INT_ARRAY, children);
@@ -118,6 +118,7 @@ public record DeclareCommandsPacket(@NotNull List<Node> nodes,
                 case "minecraft:range" ->
                         reader.extractBytes(b -> b.read(BOOLEAN)); // https://wiki.vg/Command_Data#minecraft:range, looks fishy
                 case "minecraft:resource_or_tag", "minecraft:registry" -> reader.extractBytes(b -> b.read(STRING));
+                case "minecraft:time" -> reader.extractBytes(b -> b.read(INT));
                 default -> new byte[0]; // unknown
             };
         }

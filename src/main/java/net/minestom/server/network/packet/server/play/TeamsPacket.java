@@ -54,7 +54,7 @@ public record TeamsPacket(String teamName, Action action) implements ComponentHo
         );
     }
 
-    public sealed interface Action extends NetworkBuffer.Writer
+    public sealed interface Action extends Writer
             permits CreateTeamAction, RemoveTeamAction, UpdateTeamAction, AddEntitiesToTeamAction, RemoveEntitiesToTeamAction {
         int id();
     }

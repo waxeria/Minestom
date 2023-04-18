@@ -66,7 +66,7 @@ public record MapDataPacket(int mapId, byte scale, boolean locked,
     }
 
     public record Icon(int type, byte x, byte z, byte direction,
-                       @Nullable Component displayName) implements NetworkBuffer.Writer {
+                       @Nullable Component displayName) implements Writer {
         public Icon(@NotNull NetworkBuffer reader) {
             this(reader.read(VAR_INT), reader.read(BYTE), reader.read(BYTE), reader.read(BYTE),
                     reader.read(BOOLEAN) ? reader.read(COMPONENT) : null);
@@ -83,7 +83,7 @@ public record MapDataPacket(int mapId, byte scale, boolean locked,
     }
 
     public record ColorContent(byte columns, byte rows, byte x, byte z,
-                               byte @NotNull [] data) implements NetworkBuffer.Writer {
+                               byte @NotNull [] data) implements Writer {
         public ColorContent(@NotNull NetworkBuffer reader) {
             this(reader.read(BYTE), reader.read(BYTE), reader.read(BYTE), reader.read(BYTE),
                     reader.read(BYTE_ARRAY));

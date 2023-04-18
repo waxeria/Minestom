@@ -24,6 +24,6 @@ public record EffectPacket(int effectId, Point position, int data,
 
     @Override
     public int getId() {
-        return ServerPacketIdentifier.EFFECT;
+        return ServerPacketIdentifier.WORLD_EVENT;
     }
 }

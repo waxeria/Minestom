@@ -16,8 +16,9 @@ public class TitleCommand extends Command {
         setCondition(Conditions::playerOnly);
 
         var content = ArgumentType.String("content");
+        var duration = ArgumentType.Time("duration");
 
-        addSyntax(this::handleTitle, content);
+        addSyntax(this::handleTitle, content, duration);
     }
 
     private void handleTitle(CommandSender source, CommandContext context) {
@@ -25,5 +26,6 @@ public class TitleCommand extends Command {
         String titleContent = context.get("content");
 
         player.showTitle(Title.title(Component.text(titleContent), Component.empty(), Title.DEFAULT_TIMES));
+        player.sendMessage(Component.text("Title sent!" + context.get("duration")));
     }
 }

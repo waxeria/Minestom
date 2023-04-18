@@ -51,7 +51,7 @@ public record BossBarPacket(@NotNull UUID uuid, @NotNull Action action) implemen
                 : this;
     }
 
-    public sealed interface Action extends NetworkBuffer.Writer
+    public sealed interface Action extends Writer
             permits AddAction, RemoveAction, UpdateHealthAction, UpdateTitleAction, UpdateStyleAction, UpdateFlagsAction {
         int id();
     }

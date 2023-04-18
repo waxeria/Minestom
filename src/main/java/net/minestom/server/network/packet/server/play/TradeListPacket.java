@@ -41,7 +41,7 @@ public record TradeListPacket(int windowId, @NotNull List<Trade> trades,
     public record Trade(ItemStack inputItem1, ItemStack result,
                         ItemStack inputItem2, boolean tradeDisabled,
                         int tradeUsesNumber, int maxTradeUsesNumber, int exp,
-                        int specialPrice, float priceMultiplier, int demand) implements NetworkBuffer.Writer {
+                        int specialPrice, float priceMultiplier, int demand) implements Writer {
         public Trade(@NotNull NetworkBuffer reader) {
             this(reader.read(ITEM), reader.read(ITEM),
                     reader.readOptional(ITEM), reader.read(BOOLEAN),

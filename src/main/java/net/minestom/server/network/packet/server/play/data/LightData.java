@@ -12,7 +12,7 @@ public record LightData(boolean trustEdges,
                         @NotNull BitSet skyMask, @NotNull BitSet blockMask,
                         @NotNull BitSet emptySkyMask, @NotNull BitSet emptyBlockMask,
                         @NotNull List<byte[]> skyLight,
-                        @NotNull List<byte[]> blockLight) implements NetworkBuffer.Writer {
+                        @NotNull List<byte[]> blockLight) implements Writer {
     public LightData(@NotNull NetworkBuffer reader) {
         this(reader.read(BOOLEAN),
                 BitSet.valueOf(reader.read(LONG_ARRAY)), BitSet.valueOf(reader.read(LONG_ARRAY)),

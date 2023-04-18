@@ -6,7 +6,6 @@ import net.minestom.server.network.packet.client.ClientPacketsHandler;
 import net.minestom.server.network.packet.client.ClientPreplayPacket;
 import net.minestom.server.network.packet.client.handshake.HandshakePacket;
 import net.minestom.server.network.player.PlayerConnection;
-import net.minestom.server.utils.binary.BinaryReader;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;

@@ -60,7 +60,7 @@ public record TabCompletePacket(int transactionId, int start, int length,
     }
 
     public record Match(@NotNull String match,
-                        @Nullable Component tooltip) implements NetworkBuffer.Writer, ComponentHolder<Match> {
+                        @Nullable Component tooltip) implements Writer, ComponentHolder<Match> {
         public Match(@NotNull NetworkBuffer reader) {
             this(reader.read(STRING), reader.read(BOOLEAN) ? reader.read(COMPONENT) : null);
         }

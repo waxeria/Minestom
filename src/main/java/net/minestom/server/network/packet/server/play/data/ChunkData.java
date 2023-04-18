@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import static net.minestom.server.network.NetworkBuffer.*;
 
 public record ChunkData(@NotNull NBTCompound heightmaps, byte @NotNull [] data,
-                        @NotNull Map<Integer, Block> blockEntities) implements NetworkBuffer.Writer {
+                        @NotNull Map<Integer, Block> blockEntities) implements Writer {
     public ChunkData {
         blockEntities = blockEntities.entrySet()
                 .stream()

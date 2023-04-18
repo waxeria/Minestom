@@ -5,6 +5,7 @@ dependencyResolutionManagement {
     repositories {
         maven("https://jitpack.io")
         mavenCentral()
+        mavenLocal()
     }
 }
 
@@ -12,6 +13,7 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
+        mavenLocal()
     }
     includeBuild("build-logic")
 }

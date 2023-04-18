@@ -28,6 +28,10 @@ public final class Metadata {
         return new MetadataImpl.EntryImpl<>(TYPE_VARINT, value, NetworkBuffer.VAR_INT);
     }
 
+    public static Entry<Long> Long(long value) {
+        return new MetadataImpl.EntryImpl<>(TYPE_LONG, value, NetworkBuffer.VAR_LONG);
+    }
+
     public static Entry<Float> Float(float value) {
         return new MetadataImpl.EntryImpl<>(TYPE_FLOAT, value, NetworkBuffer.FLOAT);
     }
@@ -72,8 +76,12 @@ public final class Metadata {
         return new MetadataImpl.EntryImpl<>(TYPE_OPTUUID, value, NetworkBuffer.OPT_UUID);
     }
 
-    public static Entry<Integer> OptBlockID(@Nullable Integer value) {
-        return new MetadataImpl.EntryImpl<>(TYPE_OPTBLOCKID, value, NetworkBuffer.OPT_BLOCK_ID);
+    public static Entry<Integer> BlockState(@Nullable Integer value) {
+        return new MetadataImpl.EntryImpl<>(TYPE_BLOCKSTATE, value, NetworkBuffer.BLOCK_STATE);
+    }
+
+    public static Entry<Integer> OptBlockState(@Nullable Integer value) {
+        return new MetadataImpl.EntryImpl<>(TYPE_OPTBLOCKSTATE, value, NetworkBuffer.OPT_BLOCK_STATE);
     }
 
     public static Entry<NBT> NBT(@NotNull NBT nbt) {
@@ -95,25 +103,44 @@ public final class Metadata {
         return new MetadataImpl.EntryImpl<>(TYPE_POSE, value, NetworkBuffer.POSE);
     }
 
-    public static final byte TYPE_BYTE = 0;
-    public static final byte TYPE_VARINT = 1;
-    public static final byte TYPE_FLOAT = 2;
-    public static final byte TYPE_STRING = 3;
-    public static final byte TYPE_CHAT = 4;
-    public static final byte TYPE_OPTCHAT = 5;
-    public static final byte TYPE_SLOT = 6;
-    public static final byte TYPE_BOOLEAN = 7;
-    public static final byte TYPE_ROTATION = 8;
-    public static final byte TYPE_POSITION = 9;
-    public static final byte TYPE_OPTPOSITION = 10;
-    public static final byte TYPE_DIRECTION = 11;
-    public static final byte TYPE_OPTUUID = 12;
-    public static final byte TYPE_OPTBLOCKID = 13;
-    public static final byte TYPE_NBT = 14;
-    public static final byte TYPE_PARTICLE = 15;
-    public static final byte TYPE_VILLAGERDATA = 16;
-    public static final byte TYPE_OPTVARINT = 17;
-    public static final byte TYPE_POSE = 18;
+    public static Entry<Point> Vector3(@NotNull Point value) {
+        return new MetadataImpl.EntryImpl<>(TYPE_VECTOR3, value, NetworkBuffer.VECTOR3);
+    }
+
+    public static Entry<float[]> Quaternion(float @NotNull [] value) {
+        return new MetadataImpl.EntryImpl<>(TYPE_QUATERNION, value, NetworkBuffer.QUATERNION);
+    }
+
+    private static byte id = 0;
+
+    public static final byte TYPE_BYTE = id++;
+    public static final byte TYPE_VARINT = id++;
+    public static final byte TYPE_LONG = id++;
+    public static final byte TYPE_FLOAT = id++;
+    public static final byte TYPE_STRING = id++;
+    public static final byte TYPE_CHAT = id++;
+    public static final byte TYPE_OPTCHAT = id++;
+    public static final byte TYPE_SLOT = id++;
+    public static final byte TYPE_BOOLEAN = id++;
+    public static final byte TYPE_ROTATION = id++;
+    public static final byte TYPE_POSITION = id++;
+    public static final byte TYPE_OPTPOSITION = id++;
+    public static final byte TYPE_DIRECTION = id++;
+    public static final byte TYPE_OPTUUID = id++;
+    public static final byte TYPE_BLOCKSTATE = id++;
+    public static final byte TYPE_OPTBLOCKSTATE = id++;
+    public static final byte TYPE_NBT = id++;
+    public static final byte TYPE_PARTICLE = id++;
+    public static final byte TYPE_VILLAGERDATA = id++;
+    public static final byte TYPE_OPTVARINT = id++;
+    public static final byte TYPE_POSE = id++;
+    public static final byte TYPE_CATVARIANT = id++;
+    public static final byte TYPE_FROGVARIANT = id++;
+    public static final byte TYPE_OPTGLOBALPOS = id++;
+    public static final byte TYPE_PAINTINGVARIANT = id++;
+    public static final byte TYPE_SNIFFER = id++;
+    public static final byte TYPE_VECTOR3 = id++;
+    public static final byte TYPE_QUATERNION = id++;
 
     private static final VarHandle NOTIFIED_CHANGES;
 
