@@ -18,6 +18,7 @@ public class InteractionMeta extends EntityMeta {
 
     public InteractionMeta(@NotNull Entity entity, @NotNull Metadata metadata) {
         super(entity, metadata);
+        this.setHasNoGravity(true);
     }
 
     public float getWidth() {

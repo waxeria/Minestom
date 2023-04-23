@@ -2,7 +2,6 @@ package net.minestom.demo.commands;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.command.builder.Command;
@@ -17,16 +16,12 @@ import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.BlockDisplayMeta;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
-import net.minestom.server.event.EventListener;
-import net.minestom.server.event.player.PlayerEntityInteractEvent;
+import net.minestom.server.entity.metadata.other.ArmorStandMeta;
+import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
-import java.time.Duration;
 
 public class DisplayCommand extends Command {
 
@@ -57,16 +52,23 @@ public class DisplayCommand extends Command {
             return;
 
         var entity = new Entity(EntityType.BLOCK_DISPLAY);
-        entity.setNoGravity(true);
         var meta = (BlockDisplayMeta) entity.getEntityMeta();
         meta.setBlockState(Block.STONE_STAIRS.stateId());
         meta.setScale(new Vec(1, 1, 1));
         entity.setInstance(player.getInstance(), player.getPosition());
         meta.setViewRange(999);
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
-            meta.setInterpolationDuration(100);
-            meta.setScale(new Vec(100, 100, 100));
-        }).delay(Duration.ofSeconds(1)).schedule();
+        meta.setInterpolationDuration(0);
+
+        final var ride = new Entity(EntityType.ARMOR_STAND);
+        final var ride_meta = (ArmorStandMeta) ride.getEntityMeta();
+        ride.setInstance(player.getInstance(), player.getPosition());
+        ride_meta.setInvisible(true);
+        ride.setNoGravity(true);
+        ride.addPassenger(entity);
+
+        MinecraftServer.getGlobalEventHandler().addListener(PlayerMoveEvent.class, event -> {
+            ride.teleport(event.getPlayer().getPosition().add(0, 1.5, 0));
+        });
     }
 
     public void spawnText(@NotNull CommandSender sender, @NotNull CommandContext context) {
@@ -74,15 +76,14 @@ public class DisplayCommand extends Command {
             return;
 
         var entity = new Entity(EntityType.TEXT_DISPLAY);
-        entity.setNoGravity(true);
         var meta = (TextDisplayMeta) entity.getEntityMeta();
         meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
-        meta.setText(Component.text("Deniz pasiftir.")
+        meta.setText(Component.text("Test 1.")
                 .appendNewline()
-                .append(Component.text("Deniz pasiftir.2"))
+                .append(Component.text("Test 2"))
                 .appendNewline()
                 .appendNewline()
-                .append(Component.text("Deniz pasiftir.2").color(NamedTextColor.DARK_GRAY))
+                .append(Component.text("Test 3").color(NamedTextColor.DARK_GRAY))
         );
         meta.setBackgroundColor(NamedTextColor.GREEN, 0.1F);
         meta.setSeeThrough(true);
@@ -95,7 +96,6 @@ public class DisplayCommand extends Command {
             return;
 
         var entity = new Entity(EntityType.INTERACTION);
-        entity.setNoGravity(true);
         var meta = (InteractionMeta) entity.getEntityMeta();
         meta.setHeight(3F);
         meta.setWidth(1F);

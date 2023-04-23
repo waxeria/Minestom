@@ -11,6 +11,7 @@ public class AreaEffectCloudMeta extends EntityMeta {
 
     public AreaEffectCloudMeta(@NotNull Entity entity, @NotNull Metadata metadata) {
         super(entity, metadata);
+        this.setHasNoGravity(true);
     }
 
     public float getRadius() {

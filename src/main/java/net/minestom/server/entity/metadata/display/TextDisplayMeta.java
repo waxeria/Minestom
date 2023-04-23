@@ -21,6 +21,7 @@ public class TextDisplayMeta extends AbstractDisplayMeta {
 
     public TextDisplayMeta(@NotNull Entity entity, @NotNull Metadata metadata) {
         super(entity, metadata);
+        this.setHasNoGravity(true);
     }
 
     public @NotNull Component getText() {

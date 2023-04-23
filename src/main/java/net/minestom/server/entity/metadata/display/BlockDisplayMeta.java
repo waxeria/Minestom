@@ -11,6 +11,7 @@ public class BlockDisplayMeta extends AbstractDisplayMeta {
 
     public BlockDisplayMeta(@NotNull Entity entity, @NotNull Metadata metadata) {
         super(entity, metadata);
+        this.setHasNoGravity(true);
     }
 
     public int getBlockStateId() {
