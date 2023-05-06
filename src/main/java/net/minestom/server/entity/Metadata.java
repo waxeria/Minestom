@@ -2,6 +2,8 @@ package net.minestom.server.entity;
 
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Point;
+import net.minestom.server.entity.metadata.animal.FrogMeta;
+import net.minestom.server.entity.metadata.animal.tameable.CatMeta;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.NetworkBuffer;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
@@ -111,6 +113,14 @@ public final class Metadata {
         return new MetadataImpl.EntryImpl<>(TYPE_QUATERNION, value, NetworkBuffer.QUATERNION);
     }
 
+    public static Entry<CatMeta.Color> CatVariant(@NotNull CatMeta.Color value) {
+        return new MetadataImpl.EntryImpl<>(TYPE_CAT_VARIANT, value, NetworkBuffer.CAT_VARIANT);
+    }
+
+    public static Entry<FrogMeta.Variant> FrogVariant(@NotNull FrogMeta.Variant value) {
+        return new MetadataImpl.EntryImpl<>(TYPE_FROG_VARIANT, value, NetworkBuffer.FROG_VARIANT);
+    }
+
     private static byte id = 0;
 
     public static final byte TYPE_BYTE = id++;
@@ -134,8 +144,8 @@ public final class Metadata {
     public static final byte TYPE_VILLAGERDATA = id++;
     public static final byte TYPE_OPTVARINT = id++;
     public static final byte TYPE_POSE = id++;
-    public static final byte TYPE_CATVARIANT = id++;
-    public static final byte TYPE_FROGVARIANT = id++;
+    public static final byte TYPE_CAT_VARIANT = id++;
+    public static final byte TYPE_FROG_VARIANT = id++;
     public static final byte TYPE_OPTGLOBALPOS = id++;
     public static final byte TYPE_PAINTINGVARIANT = id++;
     public static final byte TYPE_SNIFFER = id++;

@@ -3,6 +3,8 @@ package net.minestom.server.network;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.metadata.animal.FrogMeta;
+import net.minestom.server.entity.metadata.animal.tameable.CatMeta;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.Direction;
 import net.minestom.server.utils.Either;
@@ -58,6 +60,8 @@ public final class NetworkBuffer {
     public static final Type<Entity.Pose> POSE = NetworkBufferTypes.POSE;
     public static final Type<Point> VECTOR3 = NetworkBufferTypes.VECTOR3;
     public static final Type<float[]> QUATERNION = NetworkBufferTypes.QUATERNION;
+    public static final Type<CatMeta.Color> CAT_VARIANT = NetworkBufferTypes.CAT_VARIANT;
+    public static final Type<FrogMeta.Variant> FROG_VARIANT = NetworkBufferTypes.FROG_VARIANT;
 
     ByteBuffer nioBuffer;
     final boolean resizable;
