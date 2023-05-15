@@ -541,14 +541,14 @@ final class NetworkBufferTypes {
                 final float w = buffer.read(FLOAT);
                 return new float[]{x, y, z, w};
             });
-    static final TypeImpl<CatMeta.Color> CAT_VARIANT = new TypeImpl<>(CatMeta.Color.class,
+    static final TypeImpl<CatMeta.Variant> CAT_VARIANT = new TypeImpl<>(CatMeta.Variant.class,
             (buffer, value) -> {
                 buffer.write(VAR_INT, value.ordinal());
                 return -1;
             },
             buffer -> {
                 final int ordinal = buffer.read(VAR_INT);
-                return CatMeta.Color.values()[ordinal];
+                return CatMeta.Variant.values()[ordinal];
             });
     static final TypeImpl<FrogMeta.Variant> FROG_VARIANT = new TypeImpl<>(FrogMeta.Variant.class,
             (buffer, value) -> {
